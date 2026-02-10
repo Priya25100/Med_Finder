@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PUNS - Med Finder</title>
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+
+    <!-- Extra styles for Step 2 dropdown -->
+    <style>
+        .dropdown-form {
+            background-color: #ffffff;
+            padding: 30px;
+            margin-top: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .dropdown-form h2 {
+            font-size: 28px;
+            color: #2f855a;
+            margin-bottom: 20px;
+        }
+
+        .dropdown-form select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: #f7fafc;
+            color: #2d3748;
+        }
+
+        .dropdown-form button {
+            width: 100%;
+            padding: 12px;
+            background-color: #2f855a;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .dropdown-form button:hover {
+            background-color: #276749;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 15px;
+            background-color: #ffe6e6;
+            color: #b22222;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        .results-section {
+            margin-top: 30px;
+            max-width: 1000px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <section id="header">
+        <a href="{{ url_for('index') }}">
+            <img src="{{ url_for('static', filename='image/logo.jpg') }}" class="logo" alt="Logo" />
+        </a>
+        <div>
+            <ul id="navbar">
+                <li><a href="{{ url_for('index') }}">Home</a></li>
+                <li><a href="{{ url_for('login') }}">Login</a></li>
+                <li><a class="active" href="{{ url_for('find') }}">Find</a></li>
+                <li><a href="{{ url_for('about') }}">About</a></li>
+                <a href="#" id="close"><i class="far fa-times"></i></a>
+            </ul>
+        </div>
+    </section>
+
+    <div class="find-container">
+
+        <!-- Step 1: Search for medicine -->
+        {% if step == 'search' or step is none %}
+        <form id="findform" class="find-form" method="POST" action="{{ url_for('find') }}">
+            <h2>Search for a Medicine</h2>
+            <div class="form-grid">
+                <div class="box-allergy-box">
+                    <h4>Select Allergy Types</h4><br>
+                    {% for allergy in allergy_list %}
+                        <label>
+                            <input type="checkbox" name="allergies" value="{{ allergy }}"> {{ allergy }}
+                        </label><br>
+                    {% endfor %}
+                    <label><input type="checkbox" name="allergies" value="none"> None</label><br><br>
+                </div>
+                <div class="box-medicine-box">
+                    <input type="text" name="medicine" placeholder="Enter Medicine Name" required />
+                    <button type="submit">Search</button>
+                </div>
+            </div>
+        </form>
+        {% endif %}
+
+        <!-- Step 2: Dropdown selection -->
+        {% if step == 'select' %}
+        <form method="POST" action="{{ url_for('medicine_details') }}" class="dropdown-form">
+            <h2>Select the Exact Medicine</h2>
+            <select name="selected_medicine" required>
+                {% for med in matches %}
+                    <option value="{{ med }}">{{ med }}</option>
+                {% endfor %}
+            </select>
+            {% for allergy in selected_allergies %}
+                <input type="hidden" name="allergies" value="{{ allergy }}">
+            {% endfor %}
+            <button type="submit">Get Alternatives</button>
+        </form>
+        {% endif %}
+
+        <!-- Step 3: Results and alternatives -->
+        {% if step == 'result' %}
+            {% if warnings %}
+                {% for warning in warnings %}
+                    <div class="warning">{{ warning }}</div>
+                {% endfor %}
+            {% endif %}
+
+            {% if results %}
+                <div class="results-section">
+                    {% for res in results %}
+                        <div class="result-box">
+                            <h3>{{ res.name }}</h3>
+                            <p><strong>Unit Size:</strong> {{ res.unit }}</p>
+                            <p><strong>Price:</strong> ₹{{ res.price }}</p>
+                            <p><strong>Salts:</strong> {{ res.salts }}</p>
+                            <p><strong>Side Effects:</strong> {{ res.effects }}</p>
+
+                            {% if res.alternatives %}
+                                <p><strong>Cheaper Alternatives:</strong></p>
+                                {% for alt in res.alternatives %}
+                                    <div class="alt-box">
+                                        <p><strong>Name:</strong> {{ alt.name }}</p>
+                                        <p><strong>Price:</strong> ₹{{ alt.price }}</p>
+                                        <p><strong>Salts:</strong> {{ alt.salts }}</p>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-results">No data found for selected medicine.</div>
+            {% endif %}
+        {% endif %}
+
+    </div>
+
+    <script src="{{ url_for('static', filename='js/allergy.js') }}"></script>
+</body>
+</html>
