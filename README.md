@@ -1,1 +1,2 @@
-# Med_Finder
+# PUNS-MedFinder
+Our project is a Allergy-free &Cost Effective Medicine Finder which intends to help users find affordable and allergy-safe medicines by making the user enter name of the expensive medicine and enter the allergy. It will provide cheaper alternatives for those medicines having same salts and no allergens.If there are multiple cheaper alternatives then they are sorted by prices. This project aims to provide users pocket friendly medicines while preventing allergic reactions making medicine selection safer and economical for users.
